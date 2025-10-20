@@ -48,3 +48,8 @@ temp/
 
 # Render deploy files (ไม่จำเป็นบน repo)
 render-deploy.zip
+
+# Documentation and text files
+*.md
+!README.md
+*.txt
