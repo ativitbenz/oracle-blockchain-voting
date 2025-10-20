@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment files - ห้าม commit!
+.env
+.env.local
+.env.*.local
+backend/.env
+frontend/.env
+
+# Oracle Instant Client
+backend/instantclient*/
+backend/*.zip
+backend/Wallet_*.zip
+
+# Wallet files - ห้าม commit! (ใช้ Base64 แทน)
+backend/wallet/
+backend/wallet-base64.json
+
+# Build output
+frontend/dist/
+frontend/dist-ssr/
+backend/build/
+
+# Logs
+logs/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Database setup
+backend/database-setup/
+
+# Temporary files
+*.tmp
+tmp/
+temp/
+
+# ZIP files
+*.zip
+
+# Render deploy files (ไม่จำเป็นบน repo)
+render-deploy.zip
