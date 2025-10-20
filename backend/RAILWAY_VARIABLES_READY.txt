@@ -1,0 +1,51 @@
+# ======================================================================
+# Railway Variables - Raw Editor
+# Frontend URL ได้แล้ว: https://0b8141c4.voting-oracle-blockchain-table.pages.dev
+# คัดลอกข้อความด้านล่างนี้ไปวางใน Railway Dashboard > Variables > Raw Editor
+# ======================================================================
+
+PORT=5000
+NODE_ENV=production
+DB_USER=adw_oac
+DB_PASSWORD=Welcome#1234
+DB_CONNECTION_STRING=demo_high
+USE_WALLET=true
+WALLET_LOCATION=/app/wallet
+WALLET_PASSWORD=welcome1
+ORACLE_INSTANT_CLIENT_PATH=/opt/oracle/instantclient_21_1
+DB_POOL_MIN=5
+DB_POOL_MAX=50
+DB_POOL_INCREMENT=5
+DB_QUEUE_TIMEOUT=60000
+DB_QUEUE_MAX=1000
+CORS_ORIGIN=https://0b8141c4.voting-oracle-blockchain-table.pages.dev
+CORS_ALLOWED_ORIGINS=https://0b8141c4.voting-oracle-blockchain-table.pages.dev
+BLOCKCHAIN_TABLE=votes_blockchain_v3
+IMMUTABLE_TABLE=polls_immutable_v2
+OPTIONS_TABLE=poll_options_v2
+RECIPIENTS_TABLE=poll_recipients_v2
+FRONTEND_URL=https://0b8141c4.voting-oracle-blockchain-table.pages.dev
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=benzativit@gmail.com
+SMTP_PASS=lduy feqq tlxz ybfs
+SMTP_CONNECTION_TIMEOUT=10000
+SMTP_GREETING_TIMEOUT=5000
+SMTP_SOCKET_TIMEOUT=10000
+SMTP_MAX_CONNECTIONS=5
+SMTP_MAX_MESSAGES=100
+SLOW_QUERY_THRESHOLD=5000
+
+# ======================================================================
+# หมายเหตุสำคัญ:
+# ======================================================================
+#
+# ✅ CORS_ORIGIN และ FRONTEND_URL ตั้งเป็น Frontend URL แล้ว
+# ✅ NODE_ENV = production
+# ✅ WALLET_LOCATION = /app/wallet (สำหรับ Railway Linux)
+# ✅ ORACLE_INSTANT_CLIENT_PATH = /opt/oracle/instantclient_21_1
+#
+# ⚠️ ต้อง upload Oracle Wallet files หรือแปลงเป็น Base64
+# ⚠️ ตรวจสอบ DB credentials ให้ถูกต้อง
+#
+# ======================================================================

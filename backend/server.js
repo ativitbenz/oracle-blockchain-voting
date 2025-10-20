@@ -1,6 +1,5 @@
 import app from "./src/app.js";
 import { initializePool, closePool } from "./src/config/database.js";
-import { decodeWalletFiles } from "./decode-wallet.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -10,26 +9,6 @@ const PORT = process.env.PORT || 5000;
 // Start server
 const startServer = async () => {
   try {
-    // Decode Oracle Wallet files from environment variables (for Railway/Production)
-    if (
-      process.env.NODE_ENV === "production" &&
-      process.env.USE_WALLET === "true"
-    ) {
-      console.log(
-        "🔐 Decoding Oracle Wallet files from environment variables...",
-      );
-      try {
-        decodeWalletFiles();
-        console.log("✅ Wallet files decoded successfully");
-      } catch (error) {
-        console.error(
-          "⚠️  Warning: Failed to decode wallet files:",
-          error.message,
-        );
-        console.log("   Continuing with local wallet files (if available)...");
-      }
-    }
-
     // Initialize Oracle connection pool
     console.log("🔄 Initializing Oracle Database connection...");
     await initializePool();

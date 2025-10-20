@@ -8,8 +8,9 @@ const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
-// Determine if using Oracle Cloud Wallet
-const useWallet = process.env.USE_WALLET === "true";
+// Determine if using Oracle Cloud Wallet (deprecated - use Easy Connect instead)
+const useWallet =
+  process.env.USE_WALLET === "true" && process.env.WALLET_LOCATION;
 
 // Oracle DB Configuration
 const dbConfig = useWallet

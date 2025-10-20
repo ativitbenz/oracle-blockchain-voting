@@ -1,0 +1,36 @@
+# ======================================================================
+# อัพเดท Environment Variable WALLET_LOCATION ใน Render
+# ======================================================================
+
+# ⚠️ เปลี่ยนจากเดิม:
+WALLET_LOCATION=/opt/render/project/src/wallet
+
+# ✅ เป็นค่าใหม่:
+WALLET_LOCATION=/app/wallet
+
+# ======================================================================
+# เหตุผล:
+# ======================================================================
+#
+# ใน Docker container, working directory คือ /app (ตาม Dockerfile)
+# Wallet files ถูก decode ไปที่ /app/wallet
+# แต่ ENV ตั้งเป็น /opt/render/project/src/wallet (ผิด path)
+#
+# Oracle หา wallet ไม่เจอ → Error ORA-28759
+#
+# ======================================================================
+# วิธีแก้:
+# ======================================================================
+#
+# 1. ไปที่ Render Dashboard
+# 2. เลือก Service: oracle-voting-backend
+# 3. ไปที่ Settings > Environment Variables
+# 4. แก้ไข WALLET_LOCATION:
+#
+#    เดิม: /opt/render/project/src/wallet
+#    ใหม่: /app/wallet
+#
+# 5. Save
+# 6. Render จะ redeploy อัตโนมัติ
+#
+# ======================================================================

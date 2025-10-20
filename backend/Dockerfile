@@ -31,8 +31,15 @@ COPY package*.json ./
 # Install Node.js dependencies
 RUN npm install --production
 
-# Copy application code
+# Copy application code (excluding wallet via .dockerignore)
 COPY . .
+
+# Copy wallet folder separately (if exists locally)
+# This will be used instead of Base64 decode
+COPY wallet /app/wallet
+
+# Set wallet permissions
+RUN chmod -R 600 /app/wallet/* && chmod 755 /app/wallet
 
 # Expose port
 EXPOSE 10000

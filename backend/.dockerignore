@@ -11,9 +11,8 @@ npm-debug.log*
 instantclient_23_9/
 instantclient*.zip
 
-# Wallet files (will be decoded from ENV)
-wallet/
-wallet-base64.json
+# Wallet files - DON'T ignore wallet/ (we need it in Docker!)
+# wallet/ <- commented out, so it will be copied
 Wallet_*.zip
 
 # Database setup
