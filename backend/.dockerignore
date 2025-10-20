@@ -1,0 +1,43 @@
+# Node modules
+node_modules/
+npm-debug.log*
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Oracle Instant Client (Windows version)
+instantclient_23_9/
+instantclient*.zip
+
+# Wallet files (will be decoded from ENV)
+wallet/
+wallet-base64.json
+Wallet_*.zip
+
+# Database setup
+database-setup/
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+*.md
+!README.md
+
+# Temporary files
+*.log
+*.tmp
+tmp/
+temp/
+
+# IDE
+.vscode/
+.idea/
+.DS_Store
+
+# Render/Railway config (ไม่ต้องใน Docker image)
+render.yaml
+.railwayignore

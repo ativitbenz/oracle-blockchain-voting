@@ -1,0 +1,39 @@
+# Use Node.js LTS version
+FROM node:20-slim
+
+# Install dependencies required for Oracle Instant Client
+RUN apt-get update && apt-get install -y \
+    wget \
+    unzip \
+    libaio1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /app
+
+# Download and install Oracle Instant Client
+RUN wget https://download.oracle.com/otn_software/linux/instantclient/2113000/instantclient-basic-linux.x64-21.13.0.0.0dbru.zip \
+    && unzip instantclient-basic-linux.x64-21.13.0.0.0dbru.zip \
+    && rm instantclient-basic-linux.x64-21.13.0.0.0dbru.zip \
+    && mv instantclient_21_13 /opt/oracle \
+    && echo /opt/oracle > /etc/ld.so.conf.d/oracle-instantclient.conf \
+    && ldconfig
+
+# Set Oracle environment variables
+ENV LD_LIBRARY_PATH=/opt/oracle:$LD_LIBRARY_PATH
+ENV ORACLE_HOME=/opt/oracle
+
+# Copy package files
+COPY package*.json ./
+
+# Install Node.js dependencies
+RUN npm install --production
+
+# Copy application code
+COPY . .
+
+# Expose port
+EXPOSE 10000
+
+# Start the application
+CMD ["npm", "start"]
