@@ -26,16 +26,26 @@ const allowedOrigins = (
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow any devtunnels.ms domain
-      if (
-        origin &&
-        (allowedOrigins.includes(origin) ||
-          /\.devtunnels\.ms$/.test(new URL(origin).hostname))
-      ) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
+      // Allow requests with no origin (like mobile apps, Postman, curl)
+      if (!origin) {
+        return callback(null, true);
       }
+
+      // Allow any devtunnels.ms domain
+      if (/\.devtunnels\.ms$/.test(new URL(origin).hostname)) {
+        return callback(null, true);
+      }
+
+      // Allow specified origins
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      // Log rejected origin for debugging
+      console.warn(`❌ CORS rejected origin: ${origin}`);
+      console.log(`✅ Allowed origins: ${allowedOrigins.join(", ")}`);
+
+      callback(new Error(`Origin ${origin} not allowed by CORS`));
     },
     credentials: true,
   }),
