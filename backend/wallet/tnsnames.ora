@@ -1,0 +1,8 @@
+demo_high = (description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.ap-sydney-1.oraclecloud.com))(connect_data=(service_name=gba4fd115fa8320_demo_high.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))
+
+demo_low = (description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.ap-sydney-1.oraclecloud.com))(connect_data=(service_name=gba4fd115fa8320_demo_low.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))
+
+demo_medium = (description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.ap-sydney-1.oraclecloud.com))(connect_data=(service_name=gba4fd115fa8320_demo_medium.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))
+
+
+
