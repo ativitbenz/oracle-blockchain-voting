@@ -16,8 +16,8 @@ backend/instantclient*/
 backend/*.zip
 backend/Wallet_*.zip
 
-# Wallet files - ห้าม commit! (ใช้ Base64 แทน)
-backend/wallet/
+# Wallet files - ALLOW wallet folder for Docker build
+# backend/wallet/  ← Allow this for production deployment
 backend/wallet-base64.json
 
 # Build output
