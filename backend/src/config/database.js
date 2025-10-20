@@ -60,6 +60,25 @@ export const initializePool = async () => {
       console.log("🔐 Using Oracle Cloud Wallet authentication");
       console.log(`📁 Wallet location: ${dbConfig.walletLocation}`);
 
+      // Verify wallet folder exists
+      const fs = await import("fs");
+      const walletExists = fs.existsSync(dbConfig.walletLocation);
+      console.log(`📂 Wallet folder exists: ${walletExists}`);
+
+      if (walletExists) {
+        const files = fs.readdirSync(dbConfig.walletLocation);
+        console.log(`📄 Wallet files (${files.length}):`, files.join(", "));
+
+        // Check key files
+        const requiredFiles = ["cwallet.sso", "tnsnames.ora", "sqlnet.ora"];
+        const missingFiles = requiredFiles.filter((f) => !files.includes(f));
+        if (missingFiles.length > 0) {
+          console.warn(`⚠️  Missing wallet files: ${missingFiles.join(", ")}`);
+        }
+      } else {
+        console.error(`❌ Wallet folder not found: ${dbConfig.walletLocation}`);
+      }
+
       // Get Oracle Instant Client path from environment variable
       const instantClientPath =
         process.env.ORACLE_INSTANT_CLIENT_PATH ||
