@@ -69,12 +69,19 @@ export const initializePool = async () => {
         const files = fs.readdirSync(dbConfig.walletLocation);
         console.log(`📄 Wallet files (${files.length}):`, files.join(", "));
 
-        // Check key files
+        // Check key files and their permissions
         const requiredFiles = ["cwallet.sso", "tnsnames.ora", "sqlnet.ora"];
-        const missingFiles = requiredFiles.filter((f) => !files.includes(f));
-        if (missingFiles.length > 0) {
-          console.warn(`⚠️  Missing wallet files: ${missingFiles.join(", ")}`);
-        }
+        requiredFiles.forEach((f) => {
+          const filePath = path.join(dbConfig.walletLocation, f);
+          if (fs.existsSync(filePath)) {
+            const stats = fs.statSync(filePath);
+            console.log(
+              `   ✓ ${f}: ${stats.size} bytes, mode: ${stats.mode.toString(8)}`,
+            );
+          } else {
+            console.warn(`   ✗ ${f}: MISSING`);
+          }
+        });
       } else {
         console.error(`❌ Wallet folder not found: ${dbConfig.walletLocation}`);
       }
@@ -86,11 +93,24 @@ export const initializePool = async () => {
 
       console.log(`📦 Oracle Instant Client: ${instantClientPath}`);
 
+      // Read and display sqlnet.ora content
+      const sqlnetPath = path.join(dbConfig.walletLocation, "sqlnet.ora");
+      if (fs.existsSync(sqlnetPath)) {
+        const sqlnetContent = fs.readFileSync(sqlnetPath, "utf8");
+        console.log(`📝 sqlnet.ora content:\n${sqlnetContent}`);
+      }
+
       // Initialize Oracle client with wallet location
+      console.log(`🔧 Calling initOracleClient with:`);
+      console.log(`   configDir: ${dbConfig.walletLocation}`);
+      console.log(`   libDir: ${instantClientPath}`);
+
       oracledb.initOracleClient({
         configDir: dbConfig.walletLocation,
         libDir: instantClientPath,
       });
+
+      console.log(`✅ initOracleClient completed successfully`);
 
       // Create connection pool with wallet
       pool = await oracledb.createPool({
