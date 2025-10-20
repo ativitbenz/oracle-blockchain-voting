@@ -15,13 +15,15 @@ WORKDIR /app
 RUN wget https://download.oracle.com/otn_software/linux/instantclient/2113000/instantclient-basic-linux.x64-21.13.0.0.0dbru.zip \
     && unzip instantclient-basic-linux.x64-21.13.0.0.0dbru.zip \
     && rm instantclient-basic-linux.x64-21.13.0.0.0dbru.zip \
-    && mv instantclient_21_13 /opt/oracle \
-    && echo /opt/oracle > /etc/ld.so.conf.d/oracle-instantclient.conf \
+    && mkdir -p /opt/oracle/instantclient \
+    && mv instantclient_21_13/* /opt/oracle/instantclient/ \
+    && rm -rf instantclient_21_13 \
+    && echo /opt/oracle/instantclient > /etc/ld.so.conf.d/oracle-instantclient.conf \
     && ldconfig
 
 # Set Oracle environment variables
-ENV LD_LIBRARY_PATH=/opt/oracle:$LD_LIBRARY_PATH
-ENV ORACLE_HOME=/opt/oracle
+ENV LD_LIBRARY_PATH=/opt/oracle/instantclient:$LD_LIBRARY_PATH
+ENV ORACLE_HOME=/opt/oracle/instantclient
 
 # Copy package files
 COPY package*.json ./
