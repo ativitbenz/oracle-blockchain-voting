@@ -29,6 +29,10 @@ backend/build/
 logs/
 *.log
 
+# Test files
+backend/test-*.js
+backend/test-connection.js
+
 # OS files
 .DS_Store
 Thumbs.db
