@@ -4,7 +4,7 @@ import sgMail from "@sendgrid/mail";
  * Initialize SendGrid
  */
 const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
-const FROM_EMAIL = process.env.FROM_EMAIL || process.env.SMTP_USER;
+const FROM_EMAIL = process.env.FROM_EMAIL;
 
 if (SENDGRID_API_KEY) {
   sgMail.setApiKey(SENDGRID_API_KEY);
@@ -219,7 +219,7 @@ export const sendPinEmail = async ({
     }
 
     if (!FROM_EMAIL) {
-      throw new Error("FROM_EMAIL or SMTP_USER is not configured");
+      throw new Error("FROM_EMAIL is not configured");
     }
 
     // Construct vote link with email parameter
@@ -289,7 +289,7 @@ export const testEmailConfig = async () => {
     }
 
     if (!FROM_EMAIL) {
-      console.error("✗ FROM_EMAIL or SMTP_USER is not configured");
+      console.error("✗ FROM_EMAIL is not configured");
       return false;
     }
 
