@@ -1,40 +1,17 @@
-import nodemailer from "nodemailer";
+import sgMail from "@sendgrid/mail";
 
 /**
- * Create email transporter
- * Configure with your SMTP settings
+ * Initialize SendGrid
  */
-const createTransporter = () => {
-  // For development, you can use Gmail or other SMTP services
-  // Make sure to enable "Less secure app access" for Gmail
-  // Or use App Passwords: https://support.google.com/accounts/answer/185833
+const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
+const FROM_EMAIL = process.env.FROM_EMAIL || process.env.SMTP_USER;
 
-  return nodemailer.createTransport({
-    host: process.env.SMTP_HOST || "smtp.gmail.com",
-    port: parseInt(process.env.SMTP_PORT) || 587,
-    secure: false, // true for 465, false for other ports
-    auth: {
-      user: process.env.SMTP_USER, // Your email
-      pass: process.env.SMTP_PASS, // Your password or app password
-    },
-    // Timeout configurations to prevent hanging
-    connectionTimeout: parseInt(process.env.SMTP_CONNECTION_TIMEOUT) || 60000, // Increased to 60s
-    greetingTimeout: parseInt(process.env.SMTP_GREETING_TIMEOUT) || 30000, // Increased to 30s
-    socketTimeout: parseInt(process.env.SMTP_SOCKET_TIMEOUT) || 60000, // Increased to 60s
-    // Pool configuration for better performance
-    pool: true,
-    maxConnections: parseInt(process.env.SMTP_MAX_CONNECTIONS) || 5,
-    maxMessages: parseInt(process.env.SMTP_MAX_MESSAGES) || 100,
-    // TLS options for better compatibility
-    tls: {
-      rejectUnauthorized: false, // Allow self-signed certificates
-      ciphers: "SSLv3",
-    },
-    // Debug mode for troubleshooting
-    debug: process.env.NODE_ENV === "development",
-    logger: process.env.NODE_ENV === "development",
-  });
-};
+if (SENDGRID_API_KEY) {
+  sgMail.setApiKey(SENDGRID_API_KEY);
+  console.log("✓ SendGrid API initialized");
+} else {
+  console.warn("⚠️ SENDGRID_API_KEY not found in environment variables");
+}
 
 /**
  * Generate email HTML template for PIN
@@ -164,7 +141,50 @@ const generatePinEmailHtml = ({
 };
 
 /**
- * Send PIN email to recipient
+ * Generate plain text email content
+ */
+const generatePinEmailText = ({
+  pollTitle,
+  pollDescription,
+  pin,
+  voteLink,
+  startTime,
+  endTime,
+}) => {
+  const expiryDate = new Date();
+  expiryDate.setHours(expiryDate.getHours() + 24);
+  const expiryString = expiryDate.toLocaleString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  return `
+Voting Invitation
+
+Poll: ${pollTitle}
+${pollDescription ? `${pollDescription}\n` : ""}${
+    startTime || endTime
+      ? `Voting period:${startTime ? ` Opens ${new Date(startTime).toLocaleString("en-US", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}` : ""}${endTime ? ` | Closes ${new Date(endTime).toLocaleString("en-US", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}` : ""}\n`
+      : ""
+  }PIN: ${pin}
+The PIN can be used once.
+Expires: ${expiryString}
+
+Vote:
+${voteLink}
+
+---
+This is an automated message. Please do not reply to this email.
+
+Voting System
+  `;
+};
+
+/**
+ * Send PIN email to recipient using SendGrid API
  * @param {object} params - Email parameters
  * @returns {Promise<object>} Email send result
  */
@@ -193,30 +213,35 @@ export const sendPinEmail = async ({
       };
     }
 
-    const transporter = createTransporter();
+    // Check if SendGrid is configured
+    if (!SENDGRID_API_KEY) {
+      throw new Error("SENDGRID_API_KEY is not configured");
+    }
+
+    if (!FROM_EMAIL) {
+      throw new Error("FROM_EMAIL or SMTP_USER is not configured");
+    }
 
     // Construct vote link with email parameter
     const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
     const voteLink = `${frontendUrl}/vote/${pollId}?email=${encodeURIComponent(to)}`;
 
-    // Calculate expiry time for text version
-    const expiryDate = new Date();
-    expiryDate.setHours(expiryDate.getHours() + 24);
-    const expiryString = expiryDate.toLocaleString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-
-    const mailOptions = {
+    // Prepare email message
+    const msg = {
+      to: to,
       from: {
+        email: FROM_EMAIL,
         name: "Voting System (Do Not Reply)",
-        address: process.env.SMTP_USER,
       },
-      to,
       subject: `You're Invited to Vote: ${pollTitle}`,
+      text: generatePinEmailText({
+        pollTitle,
+        pollDescription,
+        pin,
+        voteLink,
+        startTime,
+        endTime,
+      }),
       html: generatePinEmailHtml({
         pollTitle,
         pollDescription,
@@ -225,42 +250,29 @@ export const sendPinEmail = async ({
         startTime,
         endTime,
       }),
-      text: `
-Voting Invitation
-
-Poll: ${pollTitle}
-${pollDescription ? `${pollDescription}\n` : ""}${
-        startTime || endTime
-          ? `Voting period:${startTime ? ` Opens ${new Date(startTime).toLocaleString("en-US", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}` : ""}${endTime ? ` | Closes ${new Date(endTime).toLocaleString("en-US", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}` : ""}\n`
-          : ""
-      }PIN: ${pin}
-The PIN can be used once.
-Expires: ${expiryString}
-
-Vote:
-${voteLink}
-
----
-This is an automated message. Please do not reply to this email.
-
-Voting System
-      `,
     };
 
-    const info = await transporter.sendMail(mailOptions);
+    // Send email using SendGrid
+    const response = await sgMail.send(msg);
 
-    console.log("Email sent successfully:", {
+    console.log("✓ Email sent successfully:", {
       to,
-      messageId: info.messageId,
+      messageId: response[0].headers["x-message-id"],
       pollId,
     });
 
     return {
       success: true,
-      messageId: info.messageId,
+      messageId: response[0].headers["x-message-id"],
     };
   } catch (error) {
-    console.error("Error sending email:", error);
+    console.error("✗ Error sending email:", error);
+
+    // Log detailed error for SendGrid
+    if (error.response) {
+      console.error("SendGrid error details:", error.response.body);
+    }
+
     throw new Error(`Failed to send email: ${error.message}`);
   }
 };
@@ -271,9 +283,17 @@ Voting System
  */
 export const testEmailConfig = async () => {
   try {
-    const transporter = createTransporter();
-    await transporter.verify();
-    console.log("✓ Email configuration is valid");
+    if (!SENDGRID_API_KEY) {
+      console.error("✗ SENDGRID_API_KEY is not configured");
+      return false;
+    }
+
+    if (!FROM_EMAIL) {
+      console.error("✗ FROM_EMAIL or SMTP_USER is not configured");
+      return false;
+    }
+
+    console.log("✓ SendGrid configuration is valid");
     return true;
   } catch (error) {
     console.error("✗ Email configuration error:", error.message);
