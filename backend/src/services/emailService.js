@@ -1,23 +1,28 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 
 /**
- * Initialize Resend (lazy)
+ * Create SMTP transporter
+ * Supports Gmail, Outlook, and other SMTP providers
  */
-let resend = null;
+const createTransporter = () => {
+  const config = {
+    host: process.env.SMTP_HOST || "smtp.office365.com",
+    port: parseInt(process.env.SMTP_PORT) || 587,
+    secure: false, // true for 465, false for 587
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+    tls: {
+      ciphers: "SSLv3",
+      rejectUnauthorized: false,
+    },
+  };
 
-const initializeResend = () => {
-  if (resend) return resend;
+  const transporter = nodemailer.createTransport(config);
+  console.log(`✓ SMTP configured: ${config.host}:${config.port}`);
 
-  const RESEND_API_KEY = process.env.RESEND_API_KEY;
-
-  if (RESEND_API_KEY) {
-    resend = new Resend(RESEND_API_KEY);
-    console.log("✓ Resend API initialized");
-  } else {
-    console.warn("⚠️ RESEND_API_KEY not found in environment variables");
-  }
-
-  return resend;
+  return transporter;
 };
 
 /**
@@ -191,7 +196,7 @@ Voting System
 };
 
 /**
- * Send PIN email to recipient using Resend
+ * Send PIN email to recipient using SMTP
  * @param {object} params - Email parameters
  * @returns {Promise<object>} Email send result
  */
@@ -205,9 +210,6 @@ export const sendPinEmail = async ({
   endTime,
 }) => {
   try {
-    // Initialize Resend
-    const resendClient = initializeResend();
-
     // Check if email is disabled in development
     if (process.env.DISABLE_EMAIL === "true") {
       const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
@@ -223,23 +225,27 @@ export const sendPinEmail = async ({
       };
     }
 
-    // Check if Resend is configured
-    if (!process.env.RESEND_API_KEY) {
-      throw new Error("RESEND_API_KEY is not configured");
+    // Check if SMTP is configured
+    if (
+      !process.env.SMTP_HOST ||
+      !process.env.SMTP_USER ||
+      !process.env.SMTP_PASS
+    ) {
+      throw new Error(
+        "SMTP credentials not configured (SMTP_HOST, SMTP_USER, SMTP_PASS required)",
+      );
     }
 
-    if (!process.env.FROM_EMAIL) {
-      throw new Error("FROM_EMAIL is not configured");
-    }
+    const transporter = createTransporter();
 
     // Construct vote link with email parameter
     const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
     const voteLink = `${frontendUrl}/vote/${pollId}?email=${encodeURIComponent(to)}`;
 
-    // Send email using Resend
-    const { data, error } = await resendClient.emails.send({
-      from: `Voting System <${process.env.FROM_EMAIL}>`,
-      to: [to],
+    // Send email using SMTP
+    const info = await transporter.sendMail({
+      from: `"Voting System" <${process.env.SMTP_USER}>`,
+      to: to,
       subject: `You're Invited to Vote: ${pollTitle}`,
       html: generatePinEmailHtml({
         pollTitle,
@@ -259,20 +265,15 @@ export const sendPinEmail = async ({
       }),
     });
 
-    if (error) {
-      console.error("✗ Resend error:", error);
-      throw new Error(error.message);
-    }
-
     console.log("✓ Email sent successfully:", {
       to,
-      messageId: data.id,
+      messageId: info.messageId,
       pollId,
     });
 
     return {
       success: true,
-      messageId: data.id,
+      messageId: info.messageId,
     };
   } catch (error) {
     console.error("✗ Error sending email:", error);
@@ -286,23 +287,28 @@ export const sendPinEmail = async ({
  */
 export const testEmailConfig = async () => {
   try {
-    // Initialize Resend
-    initializeResend();
-
-    if (!process.env.RESEND_API_KEY) {
-      console.error("✗ RESEND_API_KEY is not configured");
+    if (!process.env.SMTP_HOST) {
+      console.error("✗ SMTP_HOST is not configured");
       return false;
     }
 
-    if (!process.env.FROM_EMAIL) {
-      console.error("✗ FROM_EMAIL is not configured");
+    if (!process.env.SMTP_USER) {
+      console.error("✗ SMTP_USER is not configured");
       return false;
     }
 
-    console.log("✓ Resend configuration is valid");
+    if (!process.env.SMTP_PASS) {
+      console.error("✗ SMTP_PASS is not configured");
+      return false;
+    }
+
+    const transporter = createTransporter();
+    await transporter.verify();
+
+    console.log("✓ SMTP configuration is valid");
     return true;
   } catch (error) {
-    console.error("✗ Email configuration error:", error.message);
+    console.error("✗ SMTP configuration error:", error.message);
     return false;
   }
 };
