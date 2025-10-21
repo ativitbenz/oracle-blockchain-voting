@@ -18,13 +18,21 @@ const createTransporter = () => {
       pass: process.env.SMTP_PASS, // Your password or app password
     },
     // Timeout configurations to prevent hanging
-    connectionTimeout: parseInt(process.env.SMTP_CONNECTION_TIMEOUT) || 10000,
-    greetingTimeout: parseInt(process.env.SMTP_GREETING_TIMEOUT) || 5000,
-    socketTimeout: parseInt(process.env.SMTP_SOCKET_TIMEOUT) || 10000,
+    connectionTimeout: parseInt(process.env.SMTP_CONNECTION_TIMEOUT) || 60000, // Increased to 60s
+    greetingTimeout: parseInt(process.env.SMTP_GREETING_TIMEOUT) || 30000, // Increased to 30s
+    socketTimeout: parseInt(process.env.SMTP_SOCKET_TIMEOUT) || 60000, // Increased to 60s
     // Pool configuration for better performance
     pool: true,
     maxConnections: parseInt(process.env.SMTP_MAX_CONNECTIONS) || 5,
     maxMessages: parseInt(process.env.SMTP_MAX_MESSAGES) || 100,
+    // TLS options for better compatibility
+    tls: {
+      rejectUnauthorized: false, // Allow self-signed certificates
+      ciphers: "SSLv3",
+    },
+    // Debug mode for troubleshooting
+    debug: process.env.NODE_ENV === "development",
+    logger: process.env.NODE_ENV === "development",
   });
 };
 
