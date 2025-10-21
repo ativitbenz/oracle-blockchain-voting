@@ -1,17 +1,24 @@
-import sgMail from "@sendgrid/mail";
+import { Resend } from "resend";
 
 /**
- * Initialize SendGrid
+ * Initialize Resend (lazy)
  */
-const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
-const FROM_EMAIL = process.env.FROM_EMAIL;
+let resend = null;
 
-if (SENDGRID_API_KEY) {
-  sgMail.setApiKey(SENDGRID_API_KEY);
-  console.log("✓ SendGrid API initialized");
-} else {
-  console.warn("⚠️ SENDGRID_API_KEY not found in environment variables");
-}
+const initializeResend = () => {
+  if (resend) return resend;
+
+  const RESEND_API_KEY = process.env.RESEND_API_KEY;
+
+  if (RESEND_API_KEY) {
+    resend = new Resend(RESEND_API_KEY);
+    console.log("✓ Resend API initialized");
+  } else {
+    console.warn("⚠️ RESEND_API_KEY not found in environment variables");
+  }
+
+  return resend;
+};
 
 /**
  * Generate email HTML template for PIN
@@ -184,7 +191,7 @@ Voting System
 };
 
 /**
- * Send PIN email to recipient using SendGrid API
+ * Send PIN email to recipient using Resend
  * @param {object} params - Email parameters
  * @returns {Promise<object>} Email send result
  */
@@ -198,6 +205,9 @@ export const sendPinEmail = async ({
   endTime,
 }) => {
   try {
+    // Initialize Resend
+    const resendClient = initializeResend();
+
     // Check if email is disabled in development
     if (process.env.DISABLE_EMAIL === "true") {
       const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
@@ -213,12 +223,12 @@ export const sendPinEmail = async ({
       };
     }
 
-    // Check if SendGrid is configured
-    if (!SENDGRID_API_KEY) {
-      throw new Error("SENDGRID_API_KEY is not configured");
+    // Check if Resend is configured
+    if (!process.env.RESEND_API_KEY) {
+      throw new Error("RESEND_API_KEY is not configured");
     }
 
-    if (!FROM_EMAIL) {
+    if (!process.env.FROM_EMAIL) {
       throw new Error("FROM_EMAIL is not configured");
     }
 
@@ -226,22 +236,11 @@ export const sendPinEmail = async ({
     const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
     const voteLink = `${frontendUrl}/vote/${pollId}?email=${encodeURIComponent(to)}`;
 
-    // Prepare email message
-    const msg = {
-      to: to,
-      from: {
-        email: FROM_EMAIL,
-        name: "Voting System (Do Not Reply)",
-      },
+    // Send email using Resend
+    const { data, error } = await resendClient.emails.send({
+      from: `Voting System <${process.env.FROM_EMAIL}>`,
+      to: [to],
       subject: `You're Invited to Vote: ${pollTitle}`,
-      text: generatePinEmailText({
-        pollTitle,
-        pollDescription,
-        pin,
-        voteLink,
-        startTime,
-        endTime,
-      }),
       html: generatePinEmailHtml({
         pollTitle,
         pollDescription,
@@ -250,29 +249,33 @@ export const sendPinEmail = async ({
         startTime,
         endTime,
       }),
-    };
+      text: generatePinEmailText({
+        pollTitle,
+        pollDescription,
+        pin,
+        voteLink,
+        startTime,
+        endTime,
+      }),
+    });
 
-    // Send email using SendGrid
-    const response = await sgMail.send(msg);
+    if (error) {
+      console.error("✗ Resend error:", error);
+      throw new Error(error.message);
+    }
 
     console.log("✓ Email sent successfully:", {
       to,
-      messageId: response[0].headers["x-message-id"],
+      messageId: data.id,
       pollId,
     });
 
     return {
       success: true,
-      messageId: response[0].headers["x-message-id"],
+      messageId: data.id,
     };
   } catch (error) {
     console.error("✗ Error sending email:", error);
-
-    // Log detailed error for SendGrid
-    if (error.response) {
-      console.error("SendGrid error details:", error.response.body);
-    }
-
     throw new Error(`Failed to send email: ${error.message}`);
   }
 };
@@ -283,17 +286,20 @@ export const sendPinEmail = async ({
  */
 export const testEmailConfig = async () => {
   try {
-    if (!SENDGRID_API_KEY) {
-      console.error("✗ SENDGRID_API_KEY is not configured");
+    // Initialize Resend
+    initializeResend();
+
+    if (!process.env.RESEND_API_KEY) {
+      console.error("✗ RESEND_API_KEY is not configured");
       return false;
     }
 
-    if (!FROM_EMAIL) {
+    if (!process.env.FROM_EMAIL) {
       console.error("✗ FROM_EMAIL is not configured");
       return false;
     }
 
-    console.log("✓ SendGrid configuration is valid");
+    console.log("✓ Resend configuration is valid");
     return true;
   } catch (error) {
     console.error("✗ Email configuration error:", error.message);
