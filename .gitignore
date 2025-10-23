@@ -16,8 +16,12 @@ backend/instantclient*/
 backend/*.zip
 backend/Wallet_*.zip
 
-# Wallet files - ALLOW wallet folder for Docker build
-# backend/wallet/  ← Allow this for production deployment
+# Wallet files - Security: Never commit wallet files!
+wallet/
+backend/wallet/
+*.sso
+*.p12
+*.jks
 backend/wallet-base64.json
 
 # Build output
