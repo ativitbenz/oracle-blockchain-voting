@@ -16,12 +16,10 @@ const app = express();
 
 // Middleware
 // Parse CORS allowed origins from environment variable
-const allowedOrigins = (
-  process.env.CORS_ALLOWED_ORIGINS ||
-  "http://localhost:3000,https://localhost:3000"
-)
+const allowedOrigins = (process.env.CORS_ALLOWED_ORIGINS || "")
   .split(",")
-  .map((origin) => origin.trim());
+  .map((origin) => origin.trim())
+  .filter((origin) => origin.length > 0);
 
 app.use(
   cors({

@@ -76,71 +76,59 @@ const generatePinEmailHtml = ({
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vote Invitation</title>
+    <title>Verification Code</title>
 </head>
-<body style="margin:0;padding:0;background-color:#f5f5f5;font-family:'Segoe UI', Arial, sans-serif;color:#111827;">
-    <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="width:100%;background-color:#f5f5f5;">
+<body style="margin:0;padding:0;background-color:#ffffff;font-family:Arial, sans-serif;">
+    <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="width:100%;background-color:#ffffff;">
         <tr>
-            <td align="center" style="padding:40px 16px;">
-                <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="max-width:560px;background-color:#ffffff;border:1px solid #e5e7eb;border-radius:12px;">
+            <td align="center" style="padding:20px;">
+                <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="max-width:600px;">
+                    <!-- Header -->
                     <tr>
-                        <td style="padding:32px;">
-                            <p style="margin:0;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;color:#6b7280;">Voting System</p>
-                            <h1 style="margin:12px 0 24px 0;font-size:22px;font-weight:600;color:#111827;">Voting Invitation</h1>
-                            <h2 style="margin:0 0 16px 0;font-size:18px;font-weight:600;color:#111827;">${pollTitle}</h2>
-                            ${
-                              pollDescription
-                                ? `<p style="margin:0 0 24px 0;font-size:14px;line-height:1.6;color:#4b5563;">${pollDescription}</p>`
-                                : ""
-                            }
-                            <p style="margin:0 0 24px 0;font-size:14px;color:#4b5563;">Use the PIN below to access the voting page.</p>
-                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px 0;border:1px solid #d1d5db;border-radius:8px;">
-                                <tr>
-                                    <td style="padding:24px;text-align:center;">
-                                        <p style="margin:0 0 12px 0;font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#6b7280;">PIN</p>
-                                        <p style="margin:0;font-size:32px;font-weight:600;letter-spacing:0.4em;color:#111827;">${pin}</p>
-                                        <p style="margin:16px 0 4px 0;font-size:12px;color:#6b7280;">The PIN can be used once.</p>
-                                        <p style="margin:0;font-size:13px;color:#4b5563;">Expires ${expiryString}</p>
-                                    </td>
-                                </tr>
-                            </table>
-                            ${
-                              startTimeString || endTimeString
-                                ? `
-                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px 0;border:1px solid #d1d5db;border-radius:8px;">
-                                <tr>
-                                    <td style="padding:16px;">
-                                        <p style="margin:0 0 8px 0;font-size:13px;color:#6b7280;">Voting period</p>
-                                        ${
-                                          startTimeString
-                                            ? `<p style="margin:0;font-size:14px;color:#111827;">Opens: ${startTimeString}</p>`
-                                            : ""
-                                        }
-                                        ${
-                                          endTimeString
-                                            ? `<p style="margin:${startTimeString ? "4px" : "0"} 0 0 0;font-size:14px;color:#111827;">Closes: ${endTimeString}</p>`
-                                            : ""
-                                        }
-                                    </td>
-                                </tr>
-                            </table>
-                            `
-                                : ""
-                            }
-                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px 0;">
-                                <tr>
-                                    <td align="center">
-                                        <a href="${voteLink}" style="display:inline-block;padding:14px 32px;background-color:#111827;color:#ffffff;text-decoration:none;font-size:15px;font-weight:600;border-radius:6px;">Open Voting Page</a>
-                                    </td>
-                                </tr>
-                            </table>
-                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0;border-top:1px solid #e5e7eb;">
-                                <tr>
-                                    <td style="padding:16px 0 0 0;">
-                                        <p style="margin:0;font-size:12px;color:#9ca3af;text-align:center;">This is an automated message. Please do not reply to this email.</p>
-                                    </td>
-                                </tr>
-                            </table>
+                        <td style="background-color:#4285f4;padding:24px 40px;">
+                            <h1 style="margin:0;font-size:24px;font-weight:400;color:#ffffff;">Verification Code</h1>
+                        </td>
+                    </tr>
+
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding:40px 40px 32px 40px;background-color:#ffffff;border:1px solid #dadce0;border-top:none;">
+                            <p style="margin:0 0 20px 0;font-size:14px;line-height:1.5;color:#202124;">Hi,</p>
+
+                            <p style="margin:0 0 20px 0;font-size:14px;line-height:1.5;color:#202124;">You have been invited to vote on:</p>
+
+                            <!-- Poll Title -->
+                            <p style="margin:0 0 12px 0;font-size:16px;font-weight:bold;line-height:1.4;color:#202124;">"${pollTitle}"</p>
+
+                            <!-- Poll Description -->
+                            ${pollDescription ? `<p style="margin:0 0 24px 0;font-size:14px;line-height:1.5;color:#5f6368;">${pollDescription}</p>` : ""}
+
+                            <p style="margin:0 0 20px 0;font-size:14px;line-height:1.5;color:#202124;">Your verification code is:</p>
+
+                            <!-- PIN Code -->
+                            <div style="text-align:center;margin:32px 0;">
+                                <p style="margin:0;font-size:48px;font-weight:bold;letter-spacing:8px;color:#202124;">${pin}</p>
+                            </div>
+
+                            <!-- Voting Period -->
+                            ${startTimeString || endTimeString ? `<p style="margin:24px 0 16px 0;font-size:14px;line-height:1.5;color:#202124;">Voting period: ${startTimeString || ""}${startTimeString && endTimeString ? " - " : ""}${endTimeString || ""}</p>` : ""}
+
+                            <p style="margin:16px 0;font-size:14px;line-height:1.5;color:#202124;">This code expires on <strong>${expiryString}</strong>.</p>
+
+                            <p style="margin:20px 0 32px 0;font-size:14px;line-height:1.5;color:#202124;">If you did not request this code, someone else may be trying to access your voting. <strong>Do not forward or give this code to anyone.</strong></p>
+
+                            <!-- CTA Button -->
+                            <div style="text-align:center;margin:32px 0 24px 0;">
+                                <a href="${voteLink}" style="display:inline-block;padding:12px 32px;background-color:#4285f4;color:#ffffff;text-decoration:none;font-size:14px;font-weight:500;border-radius:4px;">Vote Now</a>
+                            </div>
+
+                            <p style="margin:24px 0 4px 0;font-size:14px;line-height:1.5;color:#202124;">Sincerely yours,</p>
+                            <p style="margin:0 0 24px 0;font-size:14px;line-height:1.5;color:#202124;">The Voting System team</p>
+
+                            <!-- Footer -->
+                            <div style="border-top:1px solid #dadce0;padding-top:20px;margin-top:20px;">
+                                <p style="margin:0;font-size:12px;line-height:1.5;color:#5f6368;text-align:center;">This is an automated message. Please do not reply to this email.</p>
+                            </div>
                         </td>
                     </tr>
                 </table>
@@ -173,25 +161,50 @@ const generatePinEmailText = ({
     minute: "2-digit",
   });
 
+  const startTimeString = startTime
+    ? new Date(startTime).toLocaleString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : null;
+
+  const endTimeString = endTime
+    ? new Date(endTime).toLocaleString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : null;
+
   return `
-Voting Invitation
+VERIFICATION CODE
 
-Poll: ${pollTitle}
-${pollDescription ? `${pollDescription}\n` : ""}${
-    startTime || endTime
-      ? `Voting period:${startTime ? ` Opens ${new Date(startTime).toLocaleString("en-US", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}` : ""}${endTime ? ` | Closes ${new Date(endTime).toLocaleString("en-US", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}` : ""}\n`
-      : ""
-  }PIN: ${pin}
-The PIN can be used once.
-Expires: ${expiryString}
+Hi,
 
-Vote:
-${voteLink}
+You have been invited to vote on:
+
+"${pollTitle}"
+${pollDescription ? `\n${pollDescription}\n` : ""}
+Your verification code is:
+
+${pin}
+${startTimeString || endTimeString ? `\nVoting period: ${startTimeString || ""}${startTimeString && endTimeString ? " - " : ""}${endTimeString || ""}\n` : ""}
+This code expires on ${expiryString}.
+
+If you did not request this code, someone else may be trying to access your voting. Do not forward or give this code to anyone.
+
+Vote now: ${voteLink}
+
+Sincerely yours,
+The Voting System team
 
 ---
 This is an automated message. Please do not reply to this email.
-
-Voting System
   `;
 };
 
@@ -212,7 +225,7 @@ export const sendPinEmail = async ({
   try {
     // Check if email is disabled in development
     if (process.env.DISABLE_EMAIL === "true") {
-      const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+      const frontendUrl = process.env.FRONTEND_URL;
       console.log("📧 Email sending is disabled. PIN for", to, ":", pin);
       console.log(
         "Vote link:",
@@ -239,7 +252,7 @@ export const sendPinEmail = async ({
     const transporter = createTransporter();
 
     // Construct vote link with email parameter
-    const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
+    const frontendUrl = process.env.FRONTEND_URL;
     const voteLink = `${frontendUrl}/vote/${pollId}?email=${encodeURIComponent(to)}`;
 
     // Send email using SMTP
