@@ -102,7 +102,9 @@ export const PollSummaryModal = ({ pollId, isOpen, onClose }) => {
             winner && (
               <Badge variant="success" size="sm" className="text-xs">
                 <Crown className="w-3 h-3 inline mr-1" />
-                Winner: {winner.name}
+                <span className="max-w-[100px] sm:max-w-[150px] truncate inline-block align-middle">
+                  Winner: {winner.name}
+                </span>
               </Badge>
             )
           );
